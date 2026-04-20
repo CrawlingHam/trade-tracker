@@ -1,0 +1,30 @@
+# Build output
+dist
+build
+
+# Dependencies
+node_modules
+
+# Cache
+.cache
+.eslintcache
+.npm
+.env
+
+# Coverage reports
+coverage
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor directories
+.idea
+.vscode
+*.swp
+*.swo
+
+# System Files
+.DS_Store
+Thumbs.db 

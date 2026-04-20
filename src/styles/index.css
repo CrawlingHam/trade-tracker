@@ -1,0 +1,63 @@
+@import "tailwindcss";
+@import "./border.css";
+@import "./scrollbar.css";
+@import "./disable.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+	--font-display: "Inter", "Segoe UI", sans-serif;
+	--font-mono: "JetBrains Mono", "Consolas", monospace;
+
+	/* === Surface Colors === */
+	--background: hsl(0, 0%, 100%);
+	--bg2: hsl(0, 0%, 98%);
+	--bg3: hsl(0, 0%, 95%);
+
+	/* === Text Colors === */
+	--text: hsl(222, 47%, 11%);
+	--text2: hsl(215, 16%, 35%);
+	--text3: hsl(215, 14%, 53%);
+
+	/* === Accent Colors === */
+	--green: hsl(160, 100%, 41%);
+	--green-dim: hsla(160, 100%, 41%, 0.12);
+	--green-dim2: hsla(160, 100%, 41%, 0.16);
+	--red: hsl(0, 84%, 60%);
+	--red-dim: hsla(0, 84%, 60%, 0.12);
+	--blue: hsl(217, 100%, 65%);
+	--amber: hsl(43, 96%, 56%);
+
+	/* === Branding Colors === */
+	--gradient-color: hsl(219, 100%, 65%);
+	--gradient-color-secondary: hsl(190, 100%, 50%);
+
+	/* === Border Colors === */
+	--border: rgba(15, 23, 42, 0.12);
+	--border2: rgba(15, 23, 42, 0.2);
+	--border-color-none: rgba(179, 167, 167, 0);
+	--border-color-low: rgba(201, 192, 192, 0.1);
+	--border-color-medium: rgba(201, 192, 192, 0.3);
+	--border-color-high: rgba(201, 192, 192, 0.6);
+
+	/* === Glow Colors === */
+	--glow-color-none: rgba(202, 206, 212, 0);
+	--glow-color-low: rgba(202, 206, 212, 0.1);
+	--glow-color-medium: rgba(202, 206, 212, 0.2);
+	--glow-color-high: rgba(202, 206, 212, 0.3);
+}
+
+.dark {
+	color-scheme: dark;
+	--background: hsl(222, 47%, 11%);
+	--bg2: hsl(222, 39%, 14%);
+	--bg3: hsl(222, 31%, 18%);
+	--text: hsl(210, 40%, 96%);
+	--text2: hsl(215, 20%, 73%);
+	--text3: hsl(215, 14%, 60%);
+	--border: rgba(148, 163, 184, 0.22);
+	--border2: rgba(148, 163, 184, 0.34);
+	--green-dim: hsla(160, 100%, 41%, 0.16);
+	--green-dim2: hsla(160, 100%, 41%, 0.22);
+	--red-dim: hsla(0, 84%, 60%, 0.18);
+}
