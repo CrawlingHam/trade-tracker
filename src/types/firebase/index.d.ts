@@ -27,6 +27,7 @@ declare global {
 		type Document<T extends boolean = true> = DocumentData & {
 			symbol?: T extends true ? Trade.Symbol : FieldValue;
 			currency?: T extends true ? string : FieldValue;
+			goals?: T extends true ? Trade.Goals : FieldValue;
 		};
 	}
 }

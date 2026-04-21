@@ -1,36 +1,79 @@
+import { useFirebaseCurrencyState, useFirebaseSymbolState, useLogTradeFormObject, useTradeAddTrade, useTradeTradesState } from "@/hooks";
 import { Button, Card, CardContent, Input, Label } from "@/components/shared";
-import { useFirebaseSymbolState, useLogTradeFormObject, useTradeAddTrade } from "@/hooks";
+import { useMemo, useState, type JSX } from "react";
 import { LOG_CONFIG } from "@/configs";
 import LogFormFields from "./fields";
+import { showToast } from "@/utils";
 import LogFormDate from "./date";
-import { type JSX } from "react";
 import { cn } from "@/libs";
 
 const REQUIRED_FIELDS: readonly Pages.Log.FormKey[] = ["date", "side", "entry", "exit", "lot", "pnl"];
+const toKey = (value: number): string => value.toFixed(8);
 
 function Form(): JSX.Element {
 	const { form, addDate, addSide, addPnl, addLot, addNotes, addEntry, addExit } = useLogTradeFormObject();
+	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+	const currency = useFirebaseCurrencyState();
 	const symbol = useFirebaseSymbolState();
+	const trades = useTradeTradesState();
 	const addTrade = useTradeAddTrade();
+
+	const tradeKeys = useMemo(
+		() =>
+			new Set(
+				(trades ?? []).map((trade) => {
+					const open = trade.opens[0];
+					const close = trade.closes[0];
+					const side = open?.type === 1 ? "Short" : "Long";
+					return [
+						open?.time_msc ?? 0,
+						side,
+						toKey(open?.price ?? 0),
+						toKey(close?.price ?? 0),
+						toKey(open?.volume ?? close?.volume ?? 0),
+						toKey(close?.profit ?? 0),
+						trade.symbol ?? "XAUUSD",
+						trade.currency ?? "EUR",
+					].join("|");
+				})
+			),
+		[trades]
+	);
 
 	const isSubmitDisabled = REQUIRED_FIELDS.some((field) => !form?.[field]?.trim());
 
 	const handleAdd = (): void => {
-		if (!form) return;
+		if (!form || isSubmitting) return;
 
 		const dateTimeMs = new Date(form.date ?? "").getTime();
 		if (Number.isNaN(dateTimeMs)) return;
 
-		const position_id = Date.now();
-		const sideType = form.side === "Short" ? 1 : 0;
 		const entryPrice = Number.parseFloat(form.entry ?? "0");
 		const exitPrice = Number.parseFloat(form.exit ?? "0");
+		const side = form.side === "Short" ? "Short" : "Long";
 		const volume = Number.parseFloat(form.lot ?? "0");
 		const profit = Number.parseFloat(form.pnl ?? "0");
+		const sideType = form.side === "Short" ? 1 : 0;
+		const accountCurrency = currency ?? "EUR";
+		const pair = symbol ?? "XAUUSD";
+
+		const tradeKey = [dateTimeMs, side, toKey(entryPrice), toKey(exitPrice), toKey(volume), toKey(profit), pair, accountCurrency].join("|");
+		if (tradeKeys.has(tradeKey)) {
+			showToast({
+				type: "info",
+				options: {
+					description: "Trade already exists",
+				},
+			});
+			return;
+		}
+
+		setIsSubmitting(true);
+		const position_id = Date.now();
 		const time = Math.floor(dateTimeMs / 1000);
 
 		const baseTrade: Omit<Trade.Trade, "entry" | "price"> = {
-			symbol: symbol ?? "XAUUSD",
+			symbol: pair,
 			comment: form.notes ?? "",
 			time_msc: dateTimeMs,
 			ticket: position_id,
@@ -51,11 +94,13 @@ function Form(): JSX.Element {
 		addTrade({
 			opens: [{ ...baseTrade, entry: 0, price: entryPrice }],
 			closes: [{ ...baseTrade, entry: 1, price: exitPrice }],
-			symbol: symbol ?? "XAUUSD",
+			currency: accountCurrency,
+			symbol: pair,
 			standalone: null,
 			other_deals: [],
 			position_id,
 		});
+		setIsSubmitting(false);
 	};
 
 	const handleChange = (key: Pages.Log.FormKey, value: string): void => {
@@ -119,7 +164,7 @@ function Form(): JSX.Element {
 						"w-full cursor-pointer rounded-lg border border-[rgba(0,208,132,0.3)] bg-(--green-dim) px-6 py-2.5 font-mono",
 						"text-[13px] tracking-[0.04em] text-(--green) transition-all hover:bg-[rgba(0,208,132,0.2)]"
 					)}
-					disabled={isSubmitDisabled}
+					disabled={isSubmitDisabled || isSubmitting}
 					onClick={handleAdd}
 					variant="ghost"
 					type="button"

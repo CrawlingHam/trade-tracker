@@ -12,6 +12,15 @@ declare global {
 		type GroupedTrades = { position_id: number } & Partial<TradeObject>;
 
 		type GroupedTradesRecord = Record<number, GroupedTrades>;
+
+		type TaxBucket = {
+			commission: number;
+			label: string;
+			swap: number;
+			net: number;
+			pnl: number;
+			fee: number;
+		};
 	}
 }
 

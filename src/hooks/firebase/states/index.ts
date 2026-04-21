@@ -11,5 +11,6 @@ export const useFirebaseIsAnonymousState = (): Firebase.Store.Store["isAnonymous
 
 export const useFirebaseCurrencyState = (): Firebase.Store.Store["currency"] => useStore(firebaseStore, (s) => s.currency);
 export const useFirebaseSymbolState = (): Firebase.Store.Store["symbol"] => useStore(firebaseStore, (s) => s.symbol);
+export const useFirebaseGoalsState = (): Firebase.Store.Store["goals"] => useStore(firebaseStore, (s) => s.goals);
 
 export const useUserState = (): Firebase.Store.Store["user"] => useStore(firebaseStore, (s) => s.user);

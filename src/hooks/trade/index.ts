@@ -1,4 +1,5 @@
 export * from "./bootstrap";
+export * from "./currency";
 export * from "./shallow";
 export * from "./actions";
 export * from "./account";

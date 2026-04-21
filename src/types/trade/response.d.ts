@@ -115,6 +115,7 @@ namespace Trade {
 	};
 
 	type PositionTrade = {
+		currency?: string; // Client side property. Is not returned by backend
 		standalone: Trade | null;
 		other_deals: Trade[];
 		symbol: Trade.Symbol;

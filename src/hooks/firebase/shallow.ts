@@ -10,3 +10,13 @@ export const useFirebaseCurrencyObject = (): Pick<Firebase.Slice.User.Settings.S
 			setCurrency: s.setCurrency,
 		}))
 	);
+
+export function useFirebaseGoalsObject(): Pick<Firebase.Store.Store, "goals" | "setGoals"> {
+	return useStore(
+		firebaseStore,
+		useShallow((s) => ({
+			setGoals: s.setGoals,
+			goals: s.goals,
+		}))
+	);
+}

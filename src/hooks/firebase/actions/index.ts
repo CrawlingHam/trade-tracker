@@ -25,3 +25,6 @@ export const useFirebaseClearSettingsAction = (): Firebase.Store.Store["clearSet
 
 export const useFirebaseGetCurrencyAction = (): Firebase.Store.Store["getCurrency"] => useStore(firebaseStore, (s) => s.getCurrency);
 export const useFirebaseGetSymbolAction = (): Firebase.Store.Store["getSymbol"] => useStore(firebaseStore, (s) => s.getSymbol);
+
+export const useFirebaseGetGoalsAction = (): Firebase.Store.Store["getGoals"] => useStore(firebaseStore, (s) => s.getGoals);
+export const useFirebaseSetGoalsAction = (): Firebase.Store.Store["setGoals"] => useStore(firebaseStore, (s) => s.setGoals);

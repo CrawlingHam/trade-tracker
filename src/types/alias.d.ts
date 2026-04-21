@@ -8,6 +8,8 @@ declare global {
 
 		type Child = React.ReactNode | React.JSX.Element;
 		type Children = Child | Child[];
+
+		type Status = "success" | "error";
 	}
 }
 

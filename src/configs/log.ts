@@ -1,6 +1,6 @@
 const DIRECTION_OPTIONS = ["Long", "Short"] as const;
 
-const TRADE_HEADERS = ["Date", "Side", "Entry Price", "Exit Price", "Lot", "P&L", "% bal", "Notes", ""] as const;
+const TRADE_HEADERS = ["Date", "Side", "Pair", "Currency", "Entry Price", "Exit Price", "Lot", "P&L", "% bal", "Notes", ""] as const;
 
 const TRADE_FORM_FIELDS = [
 	{ label: "Date", key: "date", type: "date", placeholder: "Pick a date" },

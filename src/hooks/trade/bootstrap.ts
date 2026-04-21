@@ -12,9 +12,9 @@ export function useTradeBootstrap(bootstrap: boolean = false): Trade.Store.Store
 		initialize();
 	}, [bootstrap, initialize]);
 
+	useTradeTrades(ready);
 	useTradeAccount(ready);
 	useTradePairs(ready);
-	useTradeTrades(ready);
 
 	return ready;
 }

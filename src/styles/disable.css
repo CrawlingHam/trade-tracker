@@ -1,5 +1,8 @@
 @layer utilities {
-	.disable-focus {
-		@apply focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0;
+	.disable-focus,
+	.disable-focus *:focus,
+	.disable-focus *:focus-visible {
+		outline: none !important;
+		box-shadow: none !important;
 	}
 }

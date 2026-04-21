@@ -1,5 +1,12 @@
-import { getFirestoreUserCurrency, getFirestoreUserSymbol, updateFirestoreUserCurrency, updateFirestoreUserSymbol } from "@/libs";
 import type { StateCreator } from "zustand";
+import {
+	updateFirestoreUserCurrency,
+	updateFirestoreUserSymbol,
+	getFirestoreUserCurrency,
+	updateFirestoreUserGoals,
+	getFirestoreUserSymbol,
+	getFirestoreUserGoals,
+} from "@/libs";
 
 const state: Firebase.Slice.User.Settings.State = {
 	currency: undefined,
@@ -43,5 +50,20 @@ export const settingsSlice: StateCreator<Firebase.Store.Store, [], [], Firebase.
 		if (!firestore) return;
 
 		return await getFirestoreUserSymbol(firestore);
+	},
+
+	getGoals: async (): ReturnType<Firebase.Slice.User.Settings.Actions["getGoals"]> => {
+		const firestore = get().firestore;
+		if (!firestore) return;
+
+		return await getFirestoreUserGoals(firestore);
+	},
+
+	setGoals: async (goals: Partial<Trade.Goals>): ReturnType<Firebase.Slice.User.Settings.Actions["setGoals"]> => {
+		const firestore = get().firestore;
+		if (!firestore) return;
+
+		await updateFirestoreUserGoals(firestore, goals);
+		set({ goals });
 	},
 });

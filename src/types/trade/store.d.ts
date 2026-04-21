@@ -7,21 +7,25 @@ declare global {
 		type Symbol = SymbolsObject["symbol"];
 
 		type Goals = {
-			maxRiskPct: number;
-			currency: string;
-			monthly: number;
-			weekly: number;
+			currency?: string;
+			monthly?: number;
+			yearly?: number;
+			weekly?: number;
+			daily?: number;
 		};
+
+		type GoalKey = "daily" | "weekly" | "monthly" | "yearly";
 
 		namespace Store {
 			namespace Slices {
 				namespace User {
 					type State = {
 						trades?: PositionTrade[];
-						account?: Trade.Account;
 						selectedPair?: Pair;
-						goals?: Goals;
 						pairs?: Pairs;
+						account?: Trade.Account & {
+							startingBalance: number;
+						};
 					};
 
 					type Actions = {
@@ -30,7 +34,6 @@ declare global {
 						addTrade: Callable.Sync.Argument<Trade.PositionTrade, void>;
 						setAccount: Callable.Sync.Argument<State["account"], void>;
 						setTrades: Callable.Sync.Argument<State["trades"], void>;
-						setGoals: Callable.Sync.Argument<State["goals"], void>;
 						setPairs: Callable.Sync.Argument<State["pairs"], void>;
 					};
 

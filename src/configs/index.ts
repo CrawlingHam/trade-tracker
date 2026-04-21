@@ -1,4 +1,5 @@
 export * from "./navigationbar";
+export * from "./dashboard";
 export * from "./firebase";
 export * from "./messages";
 export * from "./routes";
@@ -6,7 +7,7 @@ export * from "./theme";
 export * from "./pairs";
 export * from "./log";
 
-export const IS_PRODUCTION = import.meta.env.ENVIRONMENT === "production";
+export const IS_PRODUCTION = import.meta.env.VITE_ENVIRONMENT === "production";
 
 export const BREAKPOINTS = {
 	"2XL": 1536,

@@ -1,9 +1,11 @@
-import { useTradeAccountState, useTradeRemoveTrade } from "@/hooks";
+import { useFirebaseCurrencyState, useFirebaseSymbolState, useTradeAccountState, useTradeRemoveTrade } from "@/hooks";
 import { getTradeDirection, toCurrencyString } from "@/utils";
 import { format } from "date-fns";
 import { type JSX } from "react";
 
 const TradeItems = ({ trades }: { trades: Trade.PositionTrade[] }): JSX.Element => {
+	const firebaseCurrency = useFirebaseCurrencyState();
+	const firebaseSymbol = useFirebaseSymbolState();
 	const removeTrade = useTradeRemoveTrade();
 	const account = useTradeAccountState();
 
@@ -13,11 +15,14 @@ const TradeItems = ({ trades }: { trades: Trade.PositionTrade[] }): JSX.Element 
 
 	return (
 		<tbody>
-			{trades?.map(({ opens, closes, position_id }): JSX.Element | null => {
-				if (!account || (!opens.length && !closes.length)) return null;
+			{trades?.map(({ opens, closes, position_id, symbol, currency: tradeCurrency }): JSX.Element | null => {
+				if (!opens.length && !closes.length) return null;
 
 				const entry = opens[0];
 				const exit = closes[0];
+
+				const pair = symbol || entry?.symbol || exit?.symbol || firebaseSymbol || "EURUSD";
+				const currency = tradeCurrency || account?.currency || firebaseCurrency || "EUR";
 
 				const direction = getTradeDirection(entry);
 
@@ -25,7 +30,8 @@ const TradeItems = ({ trades }: { trades: Trade.PositionTrade[] }): JSX.Element 
 				const pnl = exit?.profit ?? 0;
 				const winningTrade = pnl > 0;
 
-				const pct = account.balance > 0 ? ((pnl / account.balance) * 100).toFixed(2) : null;
+				const baselineBalance = account?.startingBalance ?? account?.balance ?? 0;
+				const pct = baselineBalance > 0 ? ((pnl / baselineBalance) * 100).toFixed(2) : null;
 
 				return (
 					<tr key={position_id} className="border-b border-(--border) transition-colors hover:bg-(--bg3) last:border-b-0">
@@ -39,6 +45,9 @@ const TradeItems = ({ trades }: { trades: Trade.PositionTrade[] }): JSX.Element 
 								{direction}
 							</span>
 						</td>
+
+						<td className="px-2.5 py-2.5 text-xs">{pair}</td>
+						<td className="px-2.5 py-2.5 text-xs">{currency}</td>
 
 						<td className="px-2.5 py-2.5 text-xs">{entry?.price?.toFixed(2) ?? "—"}</td>
 						<td className="px-2.5 py-2.5 text-xs">{exit?.price?.toFixed(2) ?? "—"}</td>

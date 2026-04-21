@@ -57,13 +57,3 @@ export function useTradeSelectedPairObject(): Pick<Trade.Store.Store, "selectedP
 		}))
 	);
 }
-
-export function useTradeGoalsObject(): Pick<Trade.Store.Store, "goals" | "setGoals"> {
-	return useStore(
-		tradeStore,
-		useShallow((s) => ({
-			setGoals: s.setGoals,
-			goals: s.goals,
-		}))
-	);
-}
