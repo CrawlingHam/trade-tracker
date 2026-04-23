@@ -36,13 +36,24 @@ export function useTradePairsObject(): Pick<Trade.Store.Store, "pairs" | "select
 	);
 }
 
-export function useTradeTradesObject(): Pick<Trade.Store.Store, "trades" | "setTrades" | "model"> {
+export function useTradeTradesObject(): Pick<
+	Trade.Store.Store,
+	"trades" | "setTrades" | "model" | "dailyPnls" | "weeklyPnls" | "monthlyPnls" | "yearlyPnls" | "setDailyPnls" | "setWeeklyPnls" | "setMonthlyPnls" | "setYearlyPnls"
+> {
 	return useStore(
 		tradeStore,
 		useShallow((s) => ({
 			setTrades: s.setTrades,
+			setDailyPnls: s.setDailyPnls,
+			setWeeklyPnls: s.setWeeklyPnls,
+			setMonthlyPnls: s.setMonthlyPnls,
+			setYearlyPnls: s.setYearlyPnls,
 			trades: s.trades,
 			model: s.model,
+			dailyPnls: s.dailyPnls,
+			weeklyPnls: s.weeklyPnls,
+			monthlyPnls: s.monthlyPnls,
+			yearlyPnls: s.yearlyPnls,
 		}))
 	);
 }

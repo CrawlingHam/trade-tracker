@@ -30,6 +30,7 @@ export class TradeModel implements Trade.Contract {
 				options: {
 					params: {
 						dto: "true",
+						orderBy: "desc",
 					},
 				},
 			},

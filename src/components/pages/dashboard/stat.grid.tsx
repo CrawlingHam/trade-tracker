@@ -1,7 +1,16 @@
-import { useTradeAccountState, useTradeCurrency, useTradeTradesState } from "@/hooks";
-import { formatMoney, formatSignedMoney, getPositionPnl } from "@/utils";
+import { formatMoney, formatSignedMoney, getPositionNetPnl } from "@/utils";
 import { DASHBOARD_CONFIG } from "@/configs";
-import { useMemo, type JSX } from "react";
+import { formatDate } from "date-fns";
+import { type JSX } from "react";
+import {
+	useTradeMonthlyPnlsState,
+	useTradeYearlyPnlsState,
+	useTradeWeeklyPnlsState,
+	useTradeDailyPnlsState,
+	useTradeAccountState,
+	useTradeTradesState,
+	useTradeCurrency,
+} from "@/hooks";
 
 const { DEFAULT_STATS } = DASHBOARD_CONFIG;
 
@@ -19,11 +28,15 @@ const buildStatGridRows = (p: Pages.Dashboard.StatGridData, moneyFormatter: Intl
 ];
 
 function StatGrid(): JSX.Element {
+	const monthlyPnls = useTradeMonthlyPnlsState();
+	const weeklyPnls = useTradeWeeklyPnlsState();
+	const yearlyPnls = useTradeYearlyPnlsState();
+	const dailyPnls = useTradeDailyPnlsState();
 	const moneyFormatter = useTradeCurrency();
 	const account = useTradeAccountState();
 	const trades = useTradeTradesState();
 
-	const tradePnls = trades?.map(getPositionPnl) ?? [];
+	const tradePnls = trades?.map(getPositionNetPnl) ?? [];
 	const tradesCount = tradePnls.length;
 
 	const totalPnl = tradePnls.reduce((sum, pnl) => sum + pnl, 0);
@@ -36,35 +49,16 @@ function StatGrid(): JSX.Element {
 	const winRate = tradesCount ? Math.round((wins / tradesCount) * 100) : null;
 
 	const now = new Date();
-	const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-	const weekStart = new Date(dayStart - ((now.getDay() + 6) % 7) * 24 * 60 * 60 * 1000).getTime();
-	const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-	const yearStart = new Date(now.getFullYear(), 0, 1).getTime();
 
-	const { dailyPnl, weeklyPnl, monthlyPnl, yearlyPnl } = useMemo(() => {
-		let daily = 0;
-		let weekly = 0;
-		let monthly = 0;
-		let yearly = 0;
+	const dayKey = formatDate(now, "yyyy-MM-dd");
+	const weekKey = formatDate(now, "RRRR-'W'II");
+	const monthKey = formatDate(now, "yyyy-MM");
+	const yearKey = formatDate(now, "yyyy");
 
-		(trades ?? []).forEach((trade) => {
-			const closeTime = trade.closes[0]?.time_msc ?? 0;
-			const pnl = getPositionPnl(trade);
-
-			if (closeTime >= yearStart) {
-				yearly += pnl;
-				if (closeTime >= monthStart) {
-					monthly += pnl;
-					if (closeTime >= weekStart) {
-						weekly += pnl;
-						if (closeTime >= dayStart) daily += pnl;
-					}
-				}
-			}
-		});
-
-		return { dailyPnl: daily, weeklyPnl: weekly, monthlyPnl: monthly, yearlyPnl: yearly };
-	}, [trades, dayStart, weekStart, monthStart, yearStart]);
+	const dailyPnl = dailyPnls[dayKey]?.pnl ?? 0;
+	const weeklyPnl = weeklyPnls[weekKey]?.pnl ?? 0;
+	const monthlyPnl = monthlyPnls[monthKey]?.pnl ?? 0;
+	const yearlyPnl = yearlyPnls[yearKey]?.pnl ?? 0;
 
 	const stats: Pages.Dashboard.StatGridData = {
 		...DEFAULT_STATS,

@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"prod": "pnpm build && pnpm preview",
+		"start": "pnpm build && pnpm preview",
 		"build": "tsc -b && vite build",
 		"depcheck": "npx depcheck",
 		"preview": "vite preview",

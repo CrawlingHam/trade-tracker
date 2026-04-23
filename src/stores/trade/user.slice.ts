@@ -3,7 +3,12 @@ import type { StateCreator } from "zustand";
 const state: Trade.Store.Slices.User.State = {
 	selectedPair: undefined,
 	account: undefined,
+	trades: undefined,
 	pairs: undefined,
+	dailyPnls: {},
+	weeklyPnls: {},
+	monthlyPnls: {},
+	yearlyPnls: {},
 };
 
 export const userSlice: StateCreator<Trade.Store.Store, [], [], Trade.Store.Slices.User.Slice> = (set) => ({
@@ -22,4 +27,11 @@ export const userSlice: StateCreator<Trade.Store.Store, [], [], Trade.Store.Slic
 		set((state) => ({
 			trades: [...(state.trades ?? []), trade],
 		})),
+
+	setDailyPnls: (dailyPnls: Trade.Store.Slices.User.State["dailyPnls"]): ReturnType<Trade.Store.Slices.User.Actions["setDailyPnls"]> => set({ dailyPnls }),
+	setWeeklyPnls: (weeklyPnls: Trade.Store.Slices.User.State["weeklyPnls"]): ReturnType<Trade.Store.Slices.User.Actions["setWeeklyPnls"]> =>
+		set({ weeklyPnls }),
+	setMonthlyPnls: (monthlyPnls: Trade.Store.Slices.User.State["monthlyPnls"]): ReturnType<Trade.Store.Slices.User.Actions["setMonthlyPnls"]> =>
+		set({ monthlyPnls }),
+	setYearlyPnls: (yearlyPnls: Trade.Store.Slices.User.State["yearlyPnls"]): ReturnType<Trade.Store.Slices.User.Actions["setYearlyPnls"]> => set({ yearlyPnls }),
 });

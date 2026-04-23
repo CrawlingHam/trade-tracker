@@ -1,11 +1,12 @@
-import { useTradeCurrency, useTradeTradesState, useFirebaseGoalsState } from "@/hooks";
-import { formatMoney, formatSignedMoney, getPositionPnl } from "@/utils";
+import { useTradeCurrency, useTradeDailyPnlsState, useTradeMonthlyPnlsState, useTradeWeeklyPnlsState, useTradeYearlyPnlsState, useFirebaseGoalsState } from "@/hooks";
+import { formatMoney, formatSignedMoney } from "@/utils";
 import { DASHBOARD_CONFIG } from "@/configs";
 import { Ring } from "@/components/shared";
 import { useMemo, type JSX } from "react";
+import { formatDate } from "date-fns";
 import RingCenter from "./ring.center";
 
-const { DEFAULT_PROGRESS_METRICS, DEFAULT_GOALS, DEFAULT_TRADES } = DASHBOARD_CONFIG;
+const { DEFAULT_PROGRESS_METRICS, DEFAULT_GOALS } = DASHBOARD_CONFIG;
 
 function deriveGoalTargets(goals: Trade.Goals): Pages.Dashboard.GoalTargets {
 	const monthly = goals.monthly && goals.monthly > 0 ? goals.monthly : undefined;
@@ -22,48 +23,28 @@ function deriveGoalTargets(goals: Trade.Goals): Pages.Dashboard.GoalTargets {
 }
 
 function ProgressRings(): JSX.Element {
+	const monthlyPnls = useTradeMonthlyPnlsState();
+	const weeklyPnls = useTradeWeeklyPnlsState();
+	const yearlyPnls = useTradeYearlyPnlsState();
+	const dailyPnls = useTradeDailyPnlsState();
 	const moneyFormatter = useTradeCurrency();
 	const goals = useFirebaseGoalsState();
-	const trades = useTradeTradesState();
 
 	const safeGoals = goals ?? DEFAULT_GOALS;
-	const safeTrades = trades ?? DEFAULT_TRADES;
 
 	const { dayTarget, weekTarget, monthTarget, yearTarget } = useMemo<Pages.Dashboard.GoalTargets>(() => deriveGoalTargets(safeGoals), [safeGoals]);
 
 	const now = new Date();
 
-	const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-	const weekStart = new Date(dayStart - ((now.getDay() + 6) % 7) * 24 * 60 * 60 * 1000).getTime();
-	const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-	const yearStart = new Date(now.getFullYear(), 0, 1).getTime();
+	const dayKey = formatDate(now, "yyyy-MM-dd");
+	const weekKey = formatDate(now, "RRRR-'W'II");
+	const monthKey = formatDate(now, "yyyy-MM");
+	const yearKey = formatDate(now, "yyyy");
 
-	const { dPnl, wPnl, mPnl, yPnl } = useMemo(() => {
-		let d = 0;
-		let w = 0;
-		let m = 0;
-		let y = 0;
-
-		safeTrades.forEach((trade) => {
-			const closeTime = trade.closes[0]?.time_msc ?? 0;
-			const pnl = getPositionPnl(trade);
-
-			if (closeTime >= yearStart) {
-				y += pnl;
-
-				if (closeTime >= monthStart) {
-					m += pnl;
-
-					if (closeTime >= weekStart) {
-						w += pnl;
-						if (closeTime >= dayStart) d += pnl;
-					}
-				}
-			}
-		});
-
-		return { dPnl: d, wPnl: w, mPnl: m, yPnl: y };
-	}, [safeTrades, dayStart, weekStart, monthStart, yearStart]);
+	const dPnl = dailyPnls[dayKey]?.pnl ?? 0;
+	const wPnl = weeklyPnls[weekKey]?.pnl ?? 0;
+	const mPnl = monthlyPnls[monthKey]?.pnl ?? 0;
+	const yPnl = yearlyPnls[yearKey]?.pnl ?? 0;
 
 	const monthlyProgress = monthTarget > 0 ? mPnl / monthTarget : 0;
 	const weeklyProgress = weekTarget > 0 ? wPnl / weekTarget : 0;
@@ -95,12 +76,20 @@ function ProgressRings(): JSX.Element {
 		mPnl,
 	};
 
+	const getRingColor = (percent: number): string => {
+		if (percent < 0) return "var(--red)";
+		if (percent < 25) return "var(--amber)";
+		if (percent < 50) return "var(--blue)";
+		if (percent < 75) return "var(--teal)";
+		return "var(--green)";
+	};
+
 	const ringConfigs: Pages.Dashboard.RingConfig[] = [
 		{
 			sub: `${formatSignedMoney(metrics.dPnl, moneyFormatter)} / ${formatMoney(metrics.dayTarget, moneyFormatter)}`,
+			color: getRingColor(metrics.dailyPercent),
 			progress: metrics.dailyProgress,
 			percent: metrics.dailyPercent,
-			color: "var(--green)",
 			pnl: metrics.dPnl,
 			fontWeight: 600,
 			label: "Daily",
@@ -111,9 +100,9 @@ function ProgressRings(): JSX.Element {
 		},
 		{
 			sub: `${formatSignedMoney(metrics.wPnl, moneyFormatter)} / ${formatMoney(metrics.weekTarget, moneyFormatter)}`,
+			color: getRingColor(metrics.weeklyPercent),
 			progress: metrics.weeklyProgress,
 			percent: metrics.weeklyPercent,
-			color: "var(--green)",
 			pnl: metrics.wPnl,
 			fontWeight: 600,
 			label: "Weekly",
@@ -124,9 +113,9 @@ function ProgressRings(): JSX.Element {
 		},
 		{
 			sub: `${formatSignedMoney(metrics.mPnl, moneyFormatter)} / ${formatMoney(metrics.monthTarget, moneyFormatter)}`,
+			color: getRingColor(metrics.monthlyPercent),
 			progress: metrics.monthlyProgress,
 			percent: metrics.monthlyPercent,
-			color: "var(--blue)",
 			pnl: metrics.mPnl,
 			label: "Monthly",
 			fontWeight: 700,
@@ -137,9 +126,9 @@ function ProgressRings(): JSX.Element {
 		},
 		{
 			sub: `${formatSignedMoney(metrics.yPnl, moneyFormatter)} / ${formatMoney(metrics.yearTarget, moneyFormatter)}`,
+			color: getRingColor(metrics.yearlyPercent),
 			progress: metrics.yearlyProgress,
 			percent: metrics.yearlyPercent,
-			color: "var(--blue)",
 			pnl: metrics.yPnl,
 			fontWeight: 700,
 			label: "Yearly",

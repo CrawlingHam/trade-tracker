@@ -1,5 +1,6 @@
 import { useTradeAccountObject } from "./shallow";
 import { useTradeTradesState } from "./states";
+import { getPositionNetPnl } from "@/utils";
 import { useEffect } from "react";
 
 export function useTradeAccount(initiate: boolean = true): Trade.Store.Slices.User.State["account"] {
@@ -23,10 +24,7 @@ export function useTradeAccount(initiate: boolean = true): Trade.Store.Slices.Us
 	useEffect(() => {
 		if (!initiate || !account) return;
 
-		const totalRealizedPnl = (trades ?? []).reduce((sum, trade) => {
-			const closeProfit = trade.closes[0]?.profit ?? trade.standalone?.profit ?? 0;
-			return sum + closeProfit;
-		}, 0);
+		const totalRealizedPnl = (trades ?? []).reduce((sum, trade) => sum + getPositionNetPnl(trade), 0);
 		const nextStartingBalance = Number((account.balance - totalRealizedPnl).toFixed(2));
 		if (account.startingBalance === nextStartingBalance) return;
 
